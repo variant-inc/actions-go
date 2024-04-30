@@ -1,0 +1,96 @@
+---
+# yamllint disable rule:line-length
+name: Actions Go
+description: |
+  Github Action to perform build, test , scan and generate Image for Go
+
+  ## Permissions
+
+  Add the following permissions to the job
+
+  ```yaml
+  permissions:
+    id-token: write
+    contents: read
+  ```
+
+  ## Usage
+
+  ```yaml
+      - name: Actions Go
+        uses: variant-inc/actions-go@v1
+        with:
+          ecr_repository: 'demo/example'
+          go-version: '1.22.2'
+  ```
+
+  ## Locating Container Images
+
+  ECR containers can be located with this URI.
+
+  ```text
+  064859874041.dkr.ecr.us-east-2.amazonaws.com/<ecr_repository>
+  ```
+
+
+inputs:
+  dockerfile_dir_path:
+    description: Directory Path to the dockerfile.
+    required: false
+    default: .
+  ecr_repository:
+    description: |
+      ECR Repository Name.
+      If this is empty, then container image will not be created.
+    required: false
+    default: ''
+  cloud_region:
+    description: >
+      Region where the image will be created.
+    default: us-east-2
+    required: false
+  go-version:
+    description: |
+      The go-version input is optional.
+      If not supplied, the action will try to download latest go version
+      Due to the peculiarities of YAML parsing, it is recommended to wrap the version in single quotation marks:
+    required: false
+runs:
+  using: composite
+  steps:
+    - name: Setup Actions
+      uses: variant-inc/actions-setup@v2
+
+    - name: Sonar Setup
+      id: sonar-setup
+      uses: variant-inc/actions-collection/sonar-setup@v2
+
+    - shell: bash
+      run: |
+        mkdir -p ./.github/workflows/actions-go/test
+        cp -R ${{ github.action_path }}/test/* ./.github/workflows/actions-go/test/
+
+    - name: Build & Test Go
+      uses: ./.github/workflows/actions-go/test
+      if: ${{ steps.sonar-setup.outputs.sonar_skip != 'True' }}
+      with:
+        go-version: ${{ inputs.go-version }}
+        sonar_wait_flag: ${{ steps.sonar-setup.outputs.wait_flag }}
+
+    - name: Sonar Coverage Check
+      id: sonar-coverage-check
+      uses: variant-inc/actions-collection/sonar-coverage-check@v2
+      if: ${{ steps.sonar-setup.outputs.wait_flag == 'true' }}
+
+    - name: Build and Push Image
+      uses: variant-inc/actions-collection/build-push-image@v2
+      if: ${{ inputs.ecr_repository != '' }}
+      with:
+        dockerfile_dir_path: ${{ inputs.dockerfile_dir_path }}
+        ecr_repository: ${{ inputs.ecr_repository }}
+        aws_region: ${{ inputs.cloud_region }}
+
+    - shell: bash
+      name: Set Language env
+      run: |
+        echo "LANGUAGE=go" >> "$GITHUB_ENV"

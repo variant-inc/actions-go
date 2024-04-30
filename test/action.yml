@@ -1,0 +1,58 @@
+---
+name: Test Go
+description: |
+  Github Action to Build & Test Go
+
+  RequiredEnv:
+    GITHUB_TOKEN
+    SONAR_TOKEN
+inputs:
+  go-version:
+    description: |
+      The go-version input is optional.
+      If not supplied, the action will try to download latest go version.
+      Due to the peculiarities of YAML parsing, it is recommended to wrap the version in single quotation marks
+    required: false
+  sonar_wait_flag:
+    description: Says if Sonar has to wait for analysis
+    required: false
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go-version }}
+
+    - name: Install Application Go Packages
+      shell: bash
+      run: |
+        echo "::group::Install Go Packages"
+        go build
+        go mod tidy
+        echo "::endgroup::"
+
+    - name: Run pre_test.sh
+      shell: bash
+      run: |
+        pretest_cmd="echo 'NO_PRETEST'"
+        if [ -f ".github/actions/pre_test.sh" ]; then
+            pretest_cmd="$(cat .github/actions/pre_test.sh)"
+        fi
+        echo "pretest_cmd: $pretest_cmd"
+        sh -c "${pretest_cmd}"
+
+    - name: Test with go and collect coverage result
+      shell: bash
+      run: |
+        echo "::group::Test with go and collect coverage result"
+        go test -coverprofile=coverage.out
+        echo "::endgroup::"
+
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      with:
+        args: >
+          -Dsonar.qualitygate.wait=${{ inputs.sonar_wait_flag }}
+          -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          -Dsonar.organization=${{ env.SONAR_ORG }}
+          -Dsonar.go.coverage.reportPaths=coverage.out
