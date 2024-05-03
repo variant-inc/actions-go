@@ -44,8 +44,7 @@ ECR containers can be located with this URI.
 | dockerfile_dir_path | Directory Path to the dockerfile. | `false` | . |
 | ecr_repository | ECR Repository Name. If this is empty, then container image will not be created.  | `false` |  |
 | cloud_region | Region where the image will be created.  | `false` | us-east-2 |
-| go-version | The go-version input is optional.
-      If not supplied, the action will try to download latest go version Due to the peculiarities of YAML parsing, it is recommended to wrap the version in single quotation marks:  | `false` |  |
+| go-version | The go-version input is optional. If not supplied, the action will try to download latest go version Due to the peculiarities of YAML parsing, it is recommended to wrap the version in single quotation marks:  | `false` |  |
 <!-- action-docs-inputs -->
 
 <!-- action-docs-outputs -->

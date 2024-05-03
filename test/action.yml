@@ -11,7 +11,8 @@ inputs:
     description: |
       The go-version input is optional.
       If not supplied, the action will try to download latest go version.
-      Due to the peculiarities of YAML parsing, it is recommended to wrap the version in single quotation marks
+      Due to the peculiarities of YAML parsing, it is recommended to wrap
+      the version in single quotation marks
     required: false
   sonar_wait_flag:
     description: Says if Sonar has to wait for analysis
@@ -44,7 +45,8 @@ runs:
       shell: bash
       run: |
         echo "::group::Test with go and collect coverage result"
-        go test -coverprofile=coverage.out
+        go test ./... -coverprofile coverage.out
+        cat coverage.out
         echo "::endgroup::"
 
     - name: SonarCloud Scan
