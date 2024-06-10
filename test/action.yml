@@ -22,13 +22,13 @@ runs:
   steps:
     - uses: actions/setup-go@v5
       with:
-        go-version: ${{ inputs.go-version }}
+        go-version-file: go.mod
 
     - name: Install Application Go Packages
       shell: bash
       run: |
         echo "::group::Install Go Packages"
-        go mod tidy
+        go mod download
         echo "::endgroup::"
 
     - name: Run pre_test.sh
