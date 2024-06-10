@@ -2,30 +2,42 @@
 # yamllint disable rule:line-length
 assembly-file-versioning-format: '{NuGetVersionV2}.{env:GITHUB_RUN_NUMBER ?? 9999}'
 assembly-versioning-format: '{NuGetVersionV2}.{env:GITHUB_RUN_NUMBER ?? 9999}'
+# Conventional Commits https://www.conventionalcommits.org/en/v1.0.0/
+# https://regex101.com/r/oUbnEq/1
+major-version-bump-message: (build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([\w\s-]*\))?(!:|:.*\n\n((.+\n)+\n)?BREAKING CHANGE:\s.+)
+# https://regex101.com/r/O64EGX/1
+minor-version-bump-message: '(feat)(\([\w\s-]*\))?:'
+# https://regex101.com/r/f5C4fP/1
+patch-version-bump-message: ^.+$
+# Match nothing
+no-bump-message: ^\b$
 
 mode: ContinuousDeployment
 continuous-delivery-fallback-tag: ''
 branches:
-  main:
-    mode: ContinuousDeployment
+  development:
     increment: Patch
-    prevent-increment-of-merged-branch-version: true
-    regex: ^master$|^main$
-    tag: ''
-    source-branches:
-      - feature
-    is-release-branch: true
-    is-mainline: true
-    pre-release-weight: 55000
+    # Everything except main and master
+    regex: ^(?!(main|master)$)
+    track-merge-target: true
+    source-branches: []
   feature:
-    mode: ContinuousDeployment
-    tag: useBranchName
-    increment: Minor
-    regex: ^(?!master|main).*$
-    source-branches:
-      - main
-    tracks-release-branches: true
-    pre-release-weight: 30000
-ignore:
-  sha: []
-merge-message-formats: {}
+    # Match nothing
+    regex: ^\b$
+  develop:
+    # Match nothing
+    regex: ^\b$
+  main:
+    source-branches: []
+  release:
+    # Match nothing
+    regex: ^\b$
+  pull-request:
+    # Match nothing
+    regex: ^\b$
+  hotfix:
+    # Match nothing
+    regex: ^\b$
+  support:
+    # Match nothing
+    regex: ^\b$

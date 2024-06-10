@@ -5,7 +5,7 @@ Action for CI workflow for go applications
 <!-- action-docs-description -->
 ## Description
 
-Github Action to perform build, test , scan and generate Image for go
+Github Action to perform build, test , scan and generate Image for Go
 
 ## Permissions
 

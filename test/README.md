@@ -5,7 +5,7 @@ Action for CI workflow for go applications
 <!-- action-docs-description -->
 ## Description
 
-Github Action to Build & Test go
+Github Action to Build & Test Go
 
 RequiredEnv:
   GITHUB_TOKEN
@@ -17,8 +17,7 @@ RequiredEnv:
 
 | parameter | description | required | default |
 | --- | --- | --- | --- |
-| go-version | The go-version input is optional.
-      If not supplied, the action will try to download latest go version Due to the peculiarities of YAML parsing, it is recommended to wrap the version in single quotation marks: | `false` |  |
+| go-version | The go-version input is optional. If not supplied, the action will try to download latest go version. Due to the peculiarities of YAML parsing, it is recommended to wrap the version in single quotation marks  | `false` |  |
 | sonar_wait_flag | Says if Sonar has to wait for analysis | `false` |  |
 <!-- action-docs-inputs -->
 
