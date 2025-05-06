@@ -28,6 +28,7 @@ runs:
       shell: bash
       run: |
         echo "::group::Install Go Packages"
+        go env -w GOPRIVATE=github.com/variant-inc/*
         go mod download
         echo "::endgroup::"
 
