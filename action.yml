@@ -58,7 +58,7 @@ runs:
   using: composite
   steps:
     - name: Setup Actions
-      uses: variant-inc/actions-setup@v2
+      uses: variant-inc/actions-setup@renovate/actions-checkout-5.x
 
     - name: Sonar Setup
       id: sonar-setup
