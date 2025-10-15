@@ -51,6 +51,7 @@ runs:
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarqube-scan-action@v6
+      if: env.ENABLE_SONAR == 'true'
       with:
         args: >
           -Dsonar.qualitygate.wait=${{ inputs.sonar_wait_flag }}
