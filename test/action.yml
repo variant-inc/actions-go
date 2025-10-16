@@ -45,15 +45,45 @@ runs:
       shell: bash
       run: |
         echo "::group::Test with go and collect coverage result"
-        go test ./... -coverprofile coverage.out
-        cat coverage.out
+        go test ./... -coverprofile coverage.out -covermode=atomic -v -race
+        go tool cover -html=coverage.out -o coverage.html
         echo "::endgroup::"
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarqube-scan-action@v6
+      if: env.ENABLE_SONAR == 'true'
       with:
         args: >
           -Dsonar.qualitygate.wait=${{ inputs.sonar_wait_flag }}
           -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ env.SONAR_ORG }}
           -Dsonar.go.coverage.reportPaths=coverage.out
+
+    - name: Add Coverage to Summary
+      if: env.ENABLE_SONAR != 'true'
+      shell: bash
+      run: |
+        TOTAL=$(go tool cover -func=coverage.out \
+          | grep total | awk '{print $3}')
+
+        echo "## 📊 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Total Coverage: $TOTAL**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "<details>" >> $GITHUB_STEP_SUMMARY
+        echo "<summary>Coverage by Package</summary>" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        go tool cover -func=coverage.out >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload Coverage Report
+      if: env.ENABLE_SONAR != 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: |
+          coverage.html
+          coverage.out
+        retention-days: 30
