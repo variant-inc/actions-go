@@ -50,7 +50,7 @@ runs:
         echo "::endgroup::"
 
     - name: SonarCloud Scan
-      uses: sonarsource/sonarqube-scan-action@v7
+      uses: sonarsource/sonarqube-scan-action@v8
       if: env.ENABLE_SONAR == 'true'
       with:
         args: >
